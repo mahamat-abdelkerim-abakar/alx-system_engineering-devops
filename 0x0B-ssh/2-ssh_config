@@ -1,3 +1,5 @@
-Host *
-	passwordAuthentification no
-	IdentityFile ~/.ssh/school
+#!/usr/bin/env bash
+# Configure SSH configuration file
+Host 35.196.96.41
+IdentityFile ~/.ssh/school
+PasswordAuthentication no
