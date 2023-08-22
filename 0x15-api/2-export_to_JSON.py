@@ -1,37 +1,24 @@
 #!/usr/bin/python3
-"""
-Using https://jsonplaceholder.typicode.com
-gathers data from API and exports it to JSON file
-Implemented using recursion
-"""
-import json
-import re
-import requests
-import sys
+"""fetches information from JSONplaceholder API and exports to JSON"""
+
+from json import dump
+from requests import get
+from sys import argv
 
 
-API = "https://jsonplaceholder.typicode.com"
-"""REST API url"""
+if __name__ == "__main__":
+    todo_url = "https://jsonplaceholder.typicode.com/user/{}/todos".format(
+        argv[1])
+    name_url = "https://jsonplaceholder.typicode.com/users/{}".format(argv[1])
+    todo_result = get(todo_url).json()
+    name_result = get(name_url).json()
 
+    todo_list = []
+    for todo in todo_result:
+        todo_dict = {}
+        todo_dict.update({"task": todo.get("title"), "completed": todo.get(
+            "completed"), "username": name_result.get("username")})
+        todo_list.append(todo_dict)
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        if re.fullmatch(r'\d+', sys.argv[1]):
-            id = int(sys.argv[1])
-            user_res = requests.get('{}/users/{}'.format(API, id)).json()
-            todos_res = requests.get('{}/todos'.format(API)).json()
-            user_name = user_res.get('username')
-            todos = list(filter(lambda x: x.get('userId') == id, todos_res))
-            with open("{}.json".format(id), 'w') as json_file:
-                user_data = list(map(
-                    lambda x: {
-                        "task": x.get("title"),
-                        "completed": x.get("completed"),
-                        "username": user_name
-                    },
-                    todos
-                ))
-                user_data = {
-                    "{}".format(id): user_data
-                }
-                json.dump(user_data, json_file)
+    with open("{}.json".format(argv[1]), 'w') as f:
+        dump({argv[1]: todo_list}, f)
